@@ -19,8 +19,12 @@ def get_by_id(visit_id: str):
 
 
 def update(visit_id: str, visit: FieldVisitUpdate):
-    payload = {k: v for k, v in visit.model_dump().items() if v is not None}
-    
+    # Use exclude_unset=True so only fields the client explicitly sent are included.
+    # This prevents PATCH from overwriting fields the client didn't mention.
+    payload = visit.model_dump(exclude_unset=True)
+
+    print(f"[UPDATE] visit_id={visit_id}  payload={payload}")  # debug log
+
     if not payload:
         response = supabase.table(TABLE).select("*").eq("borrower_id", visit_id).single().execute()
         if not response.data:
@@ -28,6 +32,7 @@ def update(visit_id: str, visit: FieldVisitUpdate):
         return response.data
 
     response = supabase.table(TABLE).update(payload).eq("borrower_id", visit_id).execute()
+    print(f"[UPDATE] Supabase response: {response.data}")  # debug log
     if not response.data:
         raise HTTPException(status_code=404, detail="Visit not found or update failed")
     return response.data[0]

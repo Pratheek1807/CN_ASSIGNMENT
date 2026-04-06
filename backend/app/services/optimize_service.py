@@ -114,11 +114,10 @@ def optimize(agent_lat: float, agent_lon: float, n_trials: int = 50) -> dict:
     Main entry point called by the API route.
     Returns optimized visit plan ordered by visit_rank.
     """
-    # ── 1. Fetch borrowers from Supabase ────────────────────────
-    resp = supabase.table(TABLE).select("*").execute()
+    # ── 1. Fetch first 15 borrowers from Supabase (ordered by borrower_id) ──
+    resp = supabase.table(TABLE).select("*").order("borrower_id").limit(15).execute()
     borrowers = resp.data
-    if borrowers and len(borrowers) > 15:
-        borrowers = random.sample(borrowers, 15)
+    print(f"[OPTIMIZE] Fetched {len(borrowers)} borrowers: {[b['borrower_id'] for b in borrowers]}")
     if not borrowers:
         return {"visits": [], "total_distance_km": 0, "best_weights": {}}
 
