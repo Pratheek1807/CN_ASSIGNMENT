@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './index.css';
 import { updateVisit } from '../../api';
+import RouteMap from '../RouteMap';
 
 const CustomersPage = () => {
   const location = useLocation();
@@ -82,9 +83,21 @@ const CustomersPage = () => {
     );
   }
 
+  // Pull agent start coords from rawData (set by LandingPage from backend response)
+  const agentLat = rawData?.agent_start?.latitude ?? 12.9716;
+  const agentLon = rawData?.agent_start?.longitude ?? 77.5946;
+
   return (
     <div className="customers-view">
       <h1 className="customer-header">Customer List</h1>
+
+      {/* ── Interactive Route Map ── */}
+      <RouteMap
+        agentLat={agentLat}
+        agentLon={agentLon}
+        visits={customersData}
+      />
+
       <ul className="customers-list">
         {customersData.map((customer) => (
           <li key={customer.borrowerId} className="customer-item">
